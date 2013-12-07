@@ -23,6 +23,7 @@ var conf = module.exports = convict({
     },
   },
   http_port: { format: 'int', env: "PORT", default: 3000 },
+  http_address: { format: 'string', env: "IP_ADDRESS", default: "127.0.0.1" },
   issuer: { format: 'string', default: "mozilla.personatest.org" },
   ldap_server_url: {
     format: 'string',
@@ -44,6 +45,7 @@ var conf = module.exports = convict({
     format: 'string',
     default: "/browserid"
   },
+  attr_cert_attrs: { format: 'array', default: null },
   supported_languages: {
     doc: "List of languages this deployment should detect and display localized strings.",
     format: Array,

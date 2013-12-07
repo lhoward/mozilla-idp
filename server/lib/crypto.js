@@ -63,3 +63,12 @@ exports.cert_key = function(pubkey, email, duration_s, cb) {
     _privKey,
     cb);
 };
+
+exports.cert_attr = function(attrName, attrVal, certHash, cb) {
+    var payload = {};
+
+    payload[attrName] = attrVal;
+    payload['cb'] = certHash;
+
+    jwcrypto.sign(payload, _privKey, cb);
+};

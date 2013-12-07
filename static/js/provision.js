@@ -28,7 +28,7 @@ window.provision = function (user) {
             headers: { "Content-Type": 'application/json' },
             dataType: 'json',
             success: function(r) {
-              navigator.id.registerCertificate(r.cert);
+              navigator.id.registerCertificate(r.cert, r.attrCerts);
             },
             error: function(r) {
               navigator.id.raiseProvisioningFailure(msg);

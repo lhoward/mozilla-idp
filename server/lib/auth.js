@@ -20,8 +20,8 @@ exports.auth = function (config) {
      * otw.
      */
     login: function(email, password, callback) {
-      if (email.indexOf('@mozilla.com') === -1) {
-        throw "Invalid ASSERTION, authenticating non mozilla.com email address:" + email;
+      if (email.indexOf('@de.padl.com') === -1) {
+        throw "Invalid ASSERTION, authenticating non de.padl.com email address:" + email;
       }
       var client = ldap.createClient({
         url: config.get('ldap_server_url')
@@ -52,7 +52,8 @@ exports.auth = function (config) {
         }
       });
 
-      var bindDN = 'mail=' + email + ',o=com,dc=mozilla';
+      var bindDN = email; // AD style
+      var userEntry = null;
       var results = 0;
       client.bind(
         bindDN,
@@ -60,19 +61,20 @@ exports.auth = function (config) {
         function(err) {
           if (err) {
             console.error('Unable to bind to LDAP to search for DNs: ' + err.toString());
-            return callback(err, false);
+            return callback(err, false, null);
           } else {
-            client.search('o=com,dc=mozilla', {
+            client.search('dc=de,dc=padl,dc=com', {
               scope: 'sub',
-              filter: '(|(mail=' + email + ')(emailAlias=' + email + '))',
-              attributes: ['mail']
+              filter: '(|(mail=' + email + ')(userPrincipalName=' + email + '))',
+              attributes: ['mail', 'userPrincipalName'].concat(config.get('attr_cert_attrs'))
             }, function (err, res) {
               if (err) {
                 console.error('error on search ' + err.toString());
-                return callback(err, false);
+                return callback(err, false, null);
               }
               res.on('searchEntry', function(entry) {
                 bindDN = entry.dn;
+                userEntry = entry.object;
                 results++;
               });
               res.on('end', function () {
@@ -80,14 +82,14 @@ exports.auth = function (config) {
                   client.bind(bindDN, password, function (err) {
                     if (err) {
                       console.warn('Wrong username or password ' + err.toString());
-                      callback(err, false);
+                      callback(err, false, null);
                     } else {
                       // Successful LDAP authentication
-                      callback(null, true);
+                      callback(null, true, userEntry);
                     }
                   });
                 } else {
-                  callback(null, false);
+                  callback(null, false, null);
                 }
               });
             });

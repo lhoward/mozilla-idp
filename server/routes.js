@@ -5,6 +5,7 @@
 const config = require('./lib/configuration'),
       crypto = require('./lib/crypto'),
         util = require('util'),
+        sjcl = require('sjcl'),
 emailRewrite = require('./lib/email_rewrite.js');
 
 var auth = require('./lib/auth').auth(config);
@@ -66,7 +67,23 @@ exports.routes = function () {
             resp.writeHead(500);
             resp.end();
           } else {
-            resp.json({ cert: cert });
+            var reply = { cert: cert, attrCerts: [] };
+            var cert_hash = sjcl.codec.base64url.fromBits(sjcl.hash.sha256.hash(cert));
+            var count = 0;
+
+            config.get('attr_cert_attrs').map(function(attr) {
+              crypto.cert_attr(attr, req.session.attrs[attr], cert_hash, function(err, attrCert) {
+                if (attrCert) {
+                  reply.attrCerts.push(attrCert);
+                }
+                if (++count === config.get('attr_cert_attrs').length) {
+                  resp.json(reply);
+                }
+              });
+            });
+            if (config.get('attr_cert_attrs').count === 0) {
+              resp.json(reply);
+            }
           }
         });
     },
@@ -85,6 +102,7 @@ exports.routes = function () {
     },
     check_signin_from_form: function (req, resp) {
       var mozillaUser = "";
+
       if (req.body.user) {
         mozillaUser = emailRewrite(req.body.user).toLowerCase();
       }
@@ -93,12 +111,13 @@ exports.routes = function () {
         resp.writeHead(400);
         return resp.end();
       } else {
-        auth.login(mozillaUser, req.body.pass, function (err, passed) {
+        auth.login(mozillaUser, req.body.pass, function (err, passed, attrs) {
           if (err || ! passed) {
             resp.write('Email or Password incorrect');
             resp.writeHead(401);
           } else {
             req.session.email = req.body.user;
+            req.session.attrs = attrs;
             resp.writeHead(200);
           }
           resp.end();

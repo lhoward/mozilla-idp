@@ -21,6 +21,10 @@ $(document).ready(function() {
     $("form").submit(function(e) {
       e.preventDefault();
 
+      if (!email || email === "") {
+        email = $.trim($("#user").val());
+      }
+
       var pass = $.trim($("#pass").val()),
           auth_url = $('form').attr('action');
 

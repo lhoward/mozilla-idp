@@ -132,7 +132,7 @@ app.use(function (req, resp, next) {
 });
 
 // Startup
-app.listen(config.get('http_port'), "127.0.0.1", function(err, address) {
+app.listen(config.get('http_port'), config.get('http_address'), function(err, address) {
   console.log(util.format("running on http://%s:%s",
                           app.address().address, app.address().port));
 });
