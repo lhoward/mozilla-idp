@@ -46,6 +46,12 @@ var conf = module.exports = convict({
     default: "/browserid"
   },
   attr_cert_attrs: { format: 'array', default: null },
+  attr_cert_displayname_mapping: {
+    format: Object,
+    default: {
+      "cn": "My common name"
+    },
+  },
   supported_languages: {
     doc: "List of languages this deployment should detect and display localized strings.",
     format: Array,

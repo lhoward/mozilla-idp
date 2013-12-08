@@ -64,11 +64,16 @@ exports.cert_key = function(pubkey, email, duration_s, cb) {
     cb);
 };
 
-exports.cert_attr = function(attrName, attrVal, certHash, cb) {
+exports.cert_attr = function(attrName, attrVal, certHash, callback) {
     var payload = {};
+    var metaData = {
+      cb: certHash,
+      id: attrName,
+      dn: config.get('attr_cert_displayname_mapping')[attrName] || "Attribute " + attrName
+    };
 
     payload[attrName] = attrVal;
-    payload['cb'] = certHash;
+    payload['md'] = metaData;
 
-    jwcrypto.sign(payload, _privKey, cb);
+    jwcrypto.sign(payload, _privKey, callback);
 };
