@@ -71,8 +71,10 @@ exports.routes = function () {
             var cert_hash = sjcl.codec.base64url.fromBits(sjcl.hash.sha256.hash(cert));
             var count = 0;
 
-            config.get('attr_cert_attrs').map(function(attr) {
-              crypto.cert_attr(attr, req.session.attrs[attr], cert_hash, function(err, attrCert) {
+            config.get('attr_cert_attrs').map(function(attrName) {
+              var attrDict = { iss: config.get('issuer') };
+              attrDict[attrName] = req.session.attrs[attrName];
+              crypto.cert_attr(attrName, attrDict, cert_hash, function(err, attrCert) {
                 if (attrCert) {
                   reply.attrCerts.push(attrCert);
                 }

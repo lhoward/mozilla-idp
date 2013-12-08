@@ -4,6 +4,7 @@
 
 const jwcrypto = require("jwcrypto"),
       cert = jwcrypto.cert,
+      sjcl = require("sjcl"),
       config = require('./configuration'),
       store = require('./keypair_store');
 
@@ -64,16 +65,44 @@ exports.cert_key = function(pubkey, email, duration_s, cb) {
     cb);
 };
 
-exports.cert_attr = function(attrName, attrVal, certHash, callback) {
-    var payload = {};
-    var metaData = {
-      cb: certHash,
-      id: attrName,
-      dn: config.get('attr_cert_displayname_mapping')[attrName] || "Attribute " + attrName
-    };
+function base64urlencode(s) {
+  return sjcl.codec.base64url.fromBits(sjcl.codec.utf8String.toBits(s));
+}
 
-    payload[attrName] = attrVal;
-    payload['md'] = metaData;
+function hex2b64urlencode(h) {
+  return sjcl.codec.base64url.fromBits(sjcl.codec.hex.toBits(h));
+}
 
-    jwcrypto.sign(payload, _privKey, callback);
+function rng() {
+}
+
+rng.prototype = {
+  nextBytes: function(byteArray) {
+    var randomBytes = crypto.randomBytes(byteArray.length);
+    for (var i=0; i<byteArray.length; i++)
+      byteArray[i] = randomBytes[i];
+  }
+};
+
+function signWithHeader(header, payload, secretKey, cb) {
+  header.alg = secretKey.getAlgorithm();
+  var algBytes = base64urlencode(JSON.stringify(header));
+  var jsonBytes = base64urlencode(JSON.stringify(payload));
+
+  secretKey.sign(algBytes + "." + jsonBytes, rng, function() {}, function(rawSignature) {
+    var signatureValue = hex2b64urlencode(rawSignature);
+
+    cb(null, algBytes + "." + jsonBytes + "." + signatureValue);
+  });
+};
+
+exports.cert_attr = function(id, attrs, certHash, callback) {
+  var payload = attrs || {};
+  var header = {
+    cb: certHash,
+    id: id,
+    dn: config.get('attr_cert_displayname_mapping')[id] || "Attribute " + id
+  };
+
+  signWithHeader(header, payload, _privKey, callback);
 };
