@@ -21,7 +21,8 @@
     "ldapjs": "0.6.2",
     "less": "1.2.2",
     "node-statsd": "0.0.2",
-    "sjcl": "1.0.0"
+    "sjcl": "1.0.0",
+    "underscore": "1.5.2"
   },
   "scripts": {
     "start": "node ./server/bin/clortho"

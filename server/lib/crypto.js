@@ -6,7 +6,8 @@ const jwcrypto = require("jwcrypto"),
       cert = jwcrypto.cert,
       sjcl = require("sjcl"),
       config = require('./configuration'),
-      store = require('./keypair_store');
+      store = require('./keypair_store'),
+      _ = require("underscore");
 
 // load desired algorithms
 require("jwcrypto/lib/algs/rs");
@@ -65,44 +66,9 @@ exports.cert_key = function(pubkey, email, duration_s, cb) {
     cb);
 };
 
-function base64urlencode(s) {
-  return sjcl.codec.base64url.fromBits(sjcl.codec.utf8String.toBits(s));
-}
-
-function hex2b64urlencode(h) {
-  return sjcl.codec.base64url.fromBits(sjcl.codec.hex.toBits(h));
-}
-
-function rng() {
-}
-
-rng.prototype = {
-  nextBytes: function(byteArray) {
-    var randomBytes = crypto.randomBytes(byteArray.length);
-    for (var i=0; i<byteArray.length; i++)
-      byteArray[i] = randomBytes[i];
-  }
-};
-
-function signWithHeader(header, payload, secretKey, cb) {
-  header.alg = secretKey.getAlgorithm();
-  var algBytes = base64urlencode(JSON.stringify(header));
-  var jsonBytes = base64urlencode(JSON.stringify(payload));
-
-  secretKey.sign(algBytes + "." + jsonBytes, rng, function() {}, function(rawSignature) {
-    var signatureValue = hex2b64urlencode(rawSignature);
-
-    cb(null, algBytes + "." + jsonBytes + "." + signatureValue);
-  });
-};
-
 exports.cert_attr = function(id, attrs, certHash, callback) {
-  var payload = attrs || {};
-  var header = {
-    cb: certHash,
-    id: id,
-    dn: config.get('attr_cert_displayname_mapping')[id] || "Attribute " + id
-  };
+  var dn = config.get('attr_cert_displayname_mapping')[id] || "Attribute " + id;
 
-  signWithHeader(header, payload, _privKey, callback);
+  payload = _.extend(attrs || {}, { cb: certHash, id: id, dn: dn });
+  jwcrypto.sign(payload, _privKey, callback);
 };
