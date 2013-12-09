@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const ldap = require('ldapjs');
+const ldap = require('ldapjs'),
+         _ = require('underscore');
 
 exports.auth = function (config) {
   if (! config.get('ldap_server_url')) throw "Configuration error, you must specifiy an ldap_server_url";
@@ -63,10 +64,15 @@ exports.auth = function (config) {
             console.error('Unable to bind to LDAP to search for DNs: ' + err.toString());
             return callback(err, false, null);
           } else {
+            var attrs = ['mail', 'userPrincipalName'];
+
+            attrs.concat(config.get('idp_cert_attrs') || []);
+            attrs.concat(config.get('attr_cert_attrs') || []);
+
             client.search('dc=de,dc=padl,dc=com', {
               scope: 'sub',
               filter: '(|(mail=' + email + ')(userPrincipalName=' + email + '))',
-              attributes: ['mail', 'userPrincipalName'].concat(config.get('attr_cert_attrs'))
+              attributes: _.uniq(attrs)
             }, function (err, res) {
               if (err) {
                 console.error('error on search ' + err.toString());
