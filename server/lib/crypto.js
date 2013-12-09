@@ -47,7 +47,7 @@ if (!exports.pubKey) {
   });
 }
 
-exports.cert_key = function(pubkey, email, duration_s, cb) {
+exports.cert_key = function(pubkey, email, duration_s, attrs, cb) {
   var pubKey = jwcrypto.loadPublicKey(pubkey);
 
   var expiration = new Date();
@@ -61,7 +61,7 @@ exports.cert_key = function(pubkey, email, duration_s, cb) {
   cert.sign(
     {publicKey: pubKey, principal: {email: email}},
     {issuer: config.get('issuer'), issuedAt: iat, expiresAt: expiration},
-    null,
+    attrs,
     _privKey,
     cb);
 };

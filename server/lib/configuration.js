@@ -45,6 +45,7 @@ var conf = module.exports = convict({
     format: 'string',
     default: "/browserid"
   },
+  idp_cert_attrs: { format: 'array', default: null },
   attr_cert_attrs: { format: 'array', default: null },
   attr_cert_displayname_mapping: {
     format: Object,

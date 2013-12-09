@@ -6,6 +6,7 @@ const config = require('./lib/configuration'),
       crypto = require('./lib/crypto'),
         util = require('util'),
         sjcl = require('sjcl'),
+           _ = require('underscore'),
 emailRewrite = require('./lib/email_rewrite.js');
 
 var auth = require('./lib/auth').auth(config);
@@ -58,32 +59,39 @@ exports.routes = function () {
         return resp.end();
       }
 
+      var idpCertAttrs = {};
+      _.map(config.get('idp_cert_attrs'), function(attrName) {
+        idpCertAttrs[attrName] = req.session.attrs && req.session.attrs[attrName];
+      });
+
       crypto.cert_key(
         req.body.pubkey,
         req.session.email,
         req.body.duration,
+        idpCertAttrs,
         function(err, cert) {
           if (err) {
             resp.writeHead(500);
             resp.end();
           } else {
             var reply = { cert: cert, attrCerts: [] };
-            var cert_hash = sjcl.codec.base64url.fromBits(sjcl.hash.sha256.hash(cert));
+            var certHash = sjcl.codec.base64url.fromBits(sjcl.hash.sha256.hash(cert));
             var count = 0;
+            var attrCertAttrs = config.get('attr_cert_attrs');
 
-            config.get('attr_cert_attrs').map(function(attrName) {
+            _.map(attrCertAttrs, function(attrName) {
               var attrDict = { iss: config.get('issuer') };
-              attrDict[attrName] = req.session.attrs[attrName];
-              crypto.cert_attr(attrName, attrDict, cert_hash, function(err, attrCert) {
+              attrDict[attrName] = req.session.attrs && req.session.attrs[attrName];
+              crypto.cert_attr(attrName, attrDict, certHash, function(err, attrCert) {
                 if (attrCert) {
                   reply.attrCerts.push(attrCert);
                 }
-                if (++count === config.get('attr_cert_attrs').length) {
+                if (++count === _.size(attrCertAttrs)) {
                   resp.json(reply);
                 }
               });
             });
-            if (config.get('attr_cert_attrs').count === 0) {
+            if (!_.size(attrCertAttrs)) {
               resp.json(reply);
             }
           }
