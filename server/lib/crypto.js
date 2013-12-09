@@ -70,9 +70,9 @@ exports.cert_key = function(pubkey, email, duration_s, claims, cb) {
     cb);
 };
 
-exports.cert_attr = function(id, claims, certHash, callback) {
+exports.cert_attr = function(id, claims, certDigestInfo, callback) {
   var metaClaims = {
-    cb: certHash,
+    cdi: certHash,
     id: id,
     dn: config.get('attr_cert_displayname_mapping')[id] || "Attribute " + id
   };
