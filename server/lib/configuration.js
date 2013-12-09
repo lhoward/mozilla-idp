@@ -45,13 +45,27 @@ var conf = module.exports = convict({
     format: 'string',
     default: "/browserid"
   },
-  idp_cert_attrs: { format: 'array', default: null },
-  attr_cert_attrs: { format: 'array', default: null },
+  idp_cert_attrs: {
+    doc: "LDAP attributes to be included in certificates",
+    format: 'array',
+    default: null
+  },
+  attr_cert_attrs: {
+    doc: "LDAP attributes to be included as attribute certificates",
+    format: 'array',
+    default: null
+  },
   attr_cert_displayname_mapping: {
+    doc: "mapping between LDAP attributes and display name in attribute certificates",
     format: Object,
     default: {
       "cn": "My common name"
     },
+  },
+  uniquify_certs: {
+    doc: "stamp certificates with unique identity",
+    format: Boolean,
+    default: false
   },
   supported_languages: {
     doc: "List of languages this deployment should detect and display localized strings.",

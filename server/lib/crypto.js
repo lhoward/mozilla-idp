@@ -7,6 +7,7 @@ const jwcrypto = require("jwcrypto"),
       sjcl = require("sjcl"),
       config = require('./configuration'),
       store = require('./keypair_store'),
+      uuid = require('node-uuid'),
       _ = require("underscore");
 
 // load desired algorithms
@@ -47,13 +48,16 @@ if (!exports.pubKey) {
   });
 }
 
-exports.cert_key = function(pubkey, email, duration_s, attrs, cb) {
+exports.cert_key = function(pubkey, email, duration_s, claims, cb) {
   var pubKey = jwcrypto.loadPublicKey(pubkey);
-
   var expiration = new Date();
   var iat = new Date();
 
   expiration.setTime(new Date().valueOf() + (duration_s * 1000));
+
+  if (config.get('uniquify_certs')) {
+    claims = _.extend(claims, { jti: uuid.v4() });
+  }
 
   // Set issuedAt to 10 seconds ago. Pads for verifier clock skew
   iat.setTime(iat.valueOf() - (10 * 1000));
@@ -61,14 +65,21 @@ exports.cert_key = function(pubkey, email, duration_s, attrs, cb) {
   cert.sign(
     {publicKey: pubKey, principal: {email: email}},
     {issuer: config.get('issuer'), issuedAt: iat, expiresAt: expiration},
-    attrs,
+    claims,
     _privKey,
     cb);
 };
 
-exports.cert_attr = function(id, attrs, certHash, callback) {
-  var dn = config.get('attr_cert_displayname_mapping')[id] || "Attribute " + id;
+exports.cert_attr = function(id, claims, certHash, callback) {
+  var metaClaims = {
+    cb: certHash,
+    id: id,
+    dn: config.get('attr_cert_displayname_mapping')[id] || "Attribute " + id
+  };
 
-  payload = _.extend(attrs || {}, { cb: certHash, id: id, dn: dn });
-  jwcrypto.sign(payload, _privKey, callback);
+  if (config.get('uniquify_certs')) {
+    metaClaims.jti = uuid.v4();
+  }
+
+  jwcrypto.sign(_.extend(claims || {}, metaClaims), _privKey, callback);
 };

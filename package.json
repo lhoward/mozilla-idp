@@ -22,7 +22,8 @@
     "less": "1.2.2",
     "node-statsd": "0.0.2",
     "sjcl": "1.0.0",
-    "underscore": "1.5.2"
+    "underscore": "1.5.2",
+    "node-uuid": "1.4.1"
   },
   "scripts": {
     "start": "node ./server/bin/clortho"
