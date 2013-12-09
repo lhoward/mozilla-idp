@@ -66,8 +66,8 @@ exports.auth = function (config) {
           } else {
             var attrs = ['mail', 'userPrincipalName'];
 
-            attrs.push.apply(config.get('idp_cert_attrs') || []);
-            attrs.push.apply(config.get('attr_cert_attrs') || []);
+            attrs.push.apply(attrs, config.get('idp_cert_attrs') || []);
+            attrs.push.apply(attrs, config.get('attr_cert_attrs') || []);
 
             client.search('dc=de,dc=padl,dc=com', {
               scope: 'sub',
