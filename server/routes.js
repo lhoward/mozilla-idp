@@ -84,7 +84,7 @@ exports.routes = function () {
             _.each(config.get('attr_certs'), function(attrCertConfig, attrCertScope, list) {
               var attrClaims = {
                 iss: config.get('issuer'),
-                cdn: attrCertConfig.display_name || "Attribute " + attrCertScope
+                sdn: attrCertConfig.display_name || attrCertScope
               };
 
               _.each(attrCertConfig.ldap_attrs, function(ldapAttr) {
