@@ -75,14 +75,17 @@ exports.routes = function () {
             resp.end();
           } else {
             var reply = { cert: cert, attrCerts: [] };
-            var certHash = sjcl.codec.base64url.fromBits(sjcl.hash.sha256.hash(cert));
+            var certDigestInfo = {
+                alg: 'S256',
+                dig: sjcl.codec.base64url.fromBits(sjcl.hash.sha256.hash(cert))
+            };
             var count = 0;
             var attrCertAttrs = config.get('attr_cert_attrs');
 
             _.map(attrCertAttrs, function(attrName) {
               var attrDict = { iss: config.get('issuer') };
               attrDict[attrName] = req.session.attrs && req.session.attrs[attrName];
-              crypto.cert_attr(attrName, attrDict, certHash, function(err, attrCert) {
+              crypto.cert_attr(attrName, attrDict, certDigestInfo, function(err, attrCert) {
                 if (attrCert) {
                   reply.attrCerts.push(attrCert);
                 }
