@@ -81,17 +81,17 @@ exports.routes = function () {
             };
             var count = 0;
 
-            _.each(config.get('attr_certs'), function(attrCertConfig, attrCertId, list) {
+            _.each(config.get('attr_certs'), function(attrCertConfig, attrCertScope, list) {
               var attrClaims = {
                 iss: config.get('issuer'),
-                cdn: attrCertConfig.display_name || "Attribute " + attrCertId
+                cdn: attrCertConfig.display_name || "Attribute " + attrCertScope
               };
 
               _.each(attrCertConfig.ldap_attrs, function(ldapAttr) {
                 attrClaims[ldapAttr] = req.session.attrs[ldapAttr];
               });
 
-              crypto.cert_attr(attrCertId, attrClaims, certDigestInfo, function(err, attrCert) {
+              crypto.cert_attr(attrCertScope, attrClaims, certDigestInfo, function(err, attrCert) {
                 if (attrCert) {
                   reply.attrCerts.push(attrCert);
                 }

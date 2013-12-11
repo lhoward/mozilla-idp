@@ -70,8 +70,8 @@ exports.cert_key = function(pubkey, email, duration_s, claims, cb) {
     cb);
 };
 
-exports.cert_attr = function(cid, claims, certDigestInfo, callback) {
-  var metaClaims = { cdi: certDigestInfo, cid: cid };
+exports.cert_attr = function(scope, claims, certDigestInfo, callback) {
+  var metaClaims = { cdi: certDigestInfo, scope: scope };
 
   if (config.get('uniquify_certs')) {
     metaClaims.jti = uuid.v4();
