@@ -72,7 +72,7 @@ exports.cert_key = function(pubkey, email, duration_s, claims, cb) {
 
 exports.cert_attr = function(id, claims, certDigestInfo, callback) {
   var metaClaims = {
-    cdi: certDigestInfo,
+    cdi: { alg: 'S256', dig: certDigestInfo },
     id: id,
     dn: config.get('attr_cert_displayname_mapping')[id] || "Attribute " + id
   };
