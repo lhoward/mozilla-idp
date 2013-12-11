@@ -16,5 +16,12 @@
   "locale_directory": "locale",
   "signin_method": "basicauth",
   "supported_languages": ["en-US"],
-  "use_https": true
+  "use_https": true,
+  "attr_certs": {
+    "name": {
+      "display_name": "My full name",
+      "ldap_attrs": ["cn", "givenName", "sn", "displayName"]
+    },
+  },
+  "uniquify_certs": true
 }

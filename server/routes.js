@@ -80,21 +80,27 @@ exports.routes = function () {
                 dig: sjcl.codec.base64url.fromBits(sjcl.hash.sha256.hash(cert))
             };
             var count = 0;
-            var attrCertAttrs = config.get('attr_cert_attrs');
 
-            _.map(attrCertAttrs, function(attrName) {
-              var attrDict = { iss: config.get('issuer') };
-              attrDict[attrName] = req.session.attrs && req.session.attrs[attrName];
-              crypto.cert_attr(attrName, attrDict, certDigestInfo, function(err, attrCert) {
+            _.each(config.get('attr_certs'), function(attrCertConfig, attrCertId, list) {
+              var attrClaims = {
+                iss: config.get('issuer'),
+                dn: attrCertConfig.display_name || "Attribute " + attrCertId
+              };
+
+              _.each(attrCertConfig.ldap_attrs, function(ldapAttr) {
+                attrClaims[ldapAttr] = req.session.attrs[ldapAttr];
+              });
+
+              crypto.cert_attr(attrCertId, attrClaims, certDigestInfo, function(err, attrCert) {
                 if (attrCert) {
                   reply.attrCerts.push(attrCert);
                 }
-                if (++count === _.size(attrCertAttrs)) {
+                if (++count === _.size(list)) {
                   resp.json(reply);
                 }
               });
             });
-            if (!_.size(attrCertAttrs)) {
+            if (!_.size(config.get('attr_certs'))) {
               resp.json(reply);
             }
           }

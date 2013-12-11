@@ -71,11 +71,7 @@ exports.cert_key = function(pubkey, email, duration_s, claims, cb) {
 };
 
 exports.cert_attr = function(id, claims, certDigestInfo, callback) {
-  var metaClaims = {
-    cdi: certDigestInfo,
-    id: id,
-    dn: config.get('attr_cert_displayname_mapping')[id] || "Attribute " + id
-  };
+  var metaClaims = { cdi: certDigestInfo, id: id };
 
   if (config.get('uniquify_certs')) {
     metaClaims.jti = uuid.v4();

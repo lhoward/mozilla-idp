@@ -67,7 +67,9 @@ exports.auth = function (config) {
             var attrs = ['mail', 'userPrincipalName'];
 
             attrs.push.apply(attrs, config.get('idp_cert_attrs') || []);
-            attrs.push.apply(attrs, config.get('attr_cert_attrs') || []);
+            _.each(config.get('attr_certs'), function(attrCertConfig) {
+              attrs.push.apply(attrs, attrCertConfig['ldap_attrs']);
+            });
 
             client.search('dc=de,dc=padl,dc=com', {
               scope: 'sub',

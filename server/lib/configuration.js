@@ -50,17 +50,10 @@ var conf = module.exports = convict({
     format: 'array',
     default: null
   },
-  attr_cert_attrs: {
-    doc: "LDAP attributes to be included as attribute certificates",
-    format: 'array',
-    default: null
-  },
-  attr_cert_displayname_mapping: {
-    doc: "mapping between LDAP attributes and display name in attribute certificates",
+  attr_certs: {
+    doc: "Attribute certificate configuration (see example)",
     format: Object,
-    default: {
-      "cn": "My common name"
-    },
+    default: null
   },
   uniquify_certs: {
     doc: "stamp certificates with unique identity",
