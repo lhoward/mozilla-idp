@@ -19,9 +19,39 @@
   "use_https": true,
   "attr_certs": {
     "profile": {
-      "display_name": "User profile information",
-      "ldap_attrs": {"cn": "name", "givenName": "given_name", "sn": "family_name"}
+      "display_name": "My standard profile",
+      "ldap_attrs": {
+        "cn": "name",
+        "givenName": "given_name",
+        "sn": "family_name",
+        "wWWHomePage": "website",
+        "sAMAccountName": "preferred_username"
+      }
     },
+    "email": {
+      "display_name": "My e-mail address",
+      "ldap_attrs": {
+        "email": "mail",
+        "email_verified": "mail"
+      }
+    },
+    "address": {
+      "display_name": "My address",
+      "ldap_attrs": {
+        "postalAddress": "formatted",
+        "streetAddress": "street_address",
+        "l": "locality",
+        "st": "region",
+        "postalCode": "postal_code",
+        "c": "country"
+      }
+    },
+    "phone": {
+      "display_name": "My phone number",
+      "ldap_attrs": {
+        "telephoneNumber": "phone_number"
+      }
+    }
   },
   "uniquify_certs": true
 }
