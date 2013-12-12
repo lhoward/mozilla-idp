@@ -18,9 +18,9 @@
   "supported_languages": ["en-US"],
   "use_https": true,
   "attr_certs": {
-    "name": {
-      "display_name": "My full name",
-      "ldap_attrs": ["cn", "givenName", "sn", "displayName"]
+    "profile": {
+      "display_name": "User profile information",
+      "ldap_attrs": {"cn": "name", "givenName": "given_name", "sn": "family_name"}
     },
   },
   "uniquify_certs": true

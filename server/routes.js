@@ -87,8 +87,8 @@ exports.routes = function () {
                 sdn: attrCertConfig.display_name || attrCertScope
               };
 
-              _.each(attrCertConfig.ldap_attrs, function(ldapAttr) {
-                attrClaims[ldapAttr] = req.session.attrs[ldapAttr];
+              _.each(attrCertConfig.ldap_attrs, function(claimAttr, ldapAttr) {
+                attrClaims[claimAttr] = req.session.attrs[ldapAttr];
               });
 
               crypto.cert_attr(attrCertScope, attrClaims, certDigestInfo, function(err, attrCert) {
