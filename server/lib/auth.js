@@ -68,7 +68,8 @@ exports.auth = function (config) {
 
             attrs.push.apply(attrs, config.get('idp_cert_attrs') || []);
             _.each(config.get('attr_certs'), function(attrCertConfig) {
-              attrs.push.apply(attrs, attrCertConfig['ldap_attrs'].keys());
+              if (_.isObject(attrCertConfig) && _.isObject(attrCertConfig.ldap_attrs))
+                attrs.push.apply(attrs, Object.keys(attrCertConfig.ldap_attrs));
             });
 
             client.search('dc=de,dc=padl,dc=com', {
